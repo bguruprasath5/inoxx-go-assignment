@@ -1,54 +1,19 @@
-package main
+package test
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"ionixx/api/controllers"
-	"ionixx/api/storage"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
-func setupTestServer() *gin.Engine {
-	// Switch to test mode
-	gin.SetMode(gin.TestMode)
-
-	storage.InitDB()
-	// Setup router, just like main function
-	r := gin.Default()
-	return r
-}
-
-func getUserPayload() ([]byte, error) {
-	newUser := controllers.CreateUserRequest{
-		UserName:    "tester",
-		Password:    "test#123",
-		FullName:    "Tester",
-		Dob:         time.Now(),
-		LinkedinURL: "https://www.linkedin.com/in/tester",
-	}
-	return json.Marshal(newUser)
-}
-func getInvalidUserPayload() ([]byte, error) {
-	newUser := controllers.CreateUserRequest{
-		UserName:    "tester",
-		Password:    "tes",
-		FullName:    "Tester",
-		LinkedinURL: "https://www.linkedin.com/in/tester",
-	}
-	return json.Marshal(newUser)
-}
 func TestCreateUserSuccess(t *testing.T) {
-
-	r := setupTestServer()
+	r := SetupTestServer()
 	userController := controllers.UserController{}
 	r.POST("/", userController.CreateUser)
-	data, err := getUserPayload()
+	data, err := GetUserPayload()
 	if err != nil {
 		t.Fatalf("Couldn't create request: %v\n", err)
 	}
@@ -75,11 +40,11 @@ func TestCreateUserSuccess(t *testing.T) {
 
 func TestCreateUserFailed(t *testing.T) {
 
-	r := setupTestServer()
+	r := SetupTestServer()
 	userController := controllers.UserController{}
 	r.POST("/", userController.CreateUser)
 
-	data, err := getInvalidUserPayload()
+	data, err := GetInvalidUserPayload()
 
 	if err != nil {
 		t.Fatalf("Couldn't create request: %v\n", err)
@@ -106,7 +71,7 @@ func TestCreateUserFailed(t *testing.T) {
 }
 
 func TestGetAllUsers(t *testing.T) {
-	r := setupTestServer()
+	r := SetupTestServer()
 	userController := controllers.UserController{}
 	r.GET("/", userController.GetAllUsers)
 	SeedNewUser(r, t)
@@ -132,7 +97,7 @@ func TestGetAllUsers(t *testing.T) {
 
 func TestGetUserByIDSuccess(t *testing.T) {
 
-	r := setupTestServer()
+	r := SetupTestServer()
 	userController := controllers.UserController{}
 	r.GET("/:id", userController.GetUserByID)
 	SeedNewUser(r, t)
@@ -156,9 +121,10 @@ func TestGetUserByIDSuccess(t *testing.T) {
 		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusOK, w.Code)
 	}
 }
+
 func TestGetUserByIDFailed(t *testing.T) {
 
-	r := setupTestServer()
+	r := SetupTestServer()
 	userController := controllers.UserController{}
 	r.GET("/:id", userController.GetUserByID)
 
@@ -180,27 +146,4 @@ func TestGetUserByIDFailed(t *testing.T) {
 	} else {
 		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusBadRequest, w.Code)
 	}
-}
-
-func SeedNewUser(r *gin.Engine, t *testing.T) {
-	userController := controllers.UserController{}
-	r.POST("/", userController.CreateUser)
-
-	data, err := getUserPayload()
-
-	if err != nil {
-		t.Fatalf("Couldn't create request: %v\n", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, "/", bytes.NewReader(data))
-
-	if err != nil {
-		t.Fatalf("Couldn't create request: %v\n", err)
-	}
-
-	// Create a response recorder to inspect the response
-	w := httptest.NewRecorder()
-
-	// Perform the request
-	r.ServeHTTP(w, req)
 }
