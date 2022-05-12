@@ -1,17 +1,16 @@
 package controllers
 
 import (
-	"ionixx/constants"
-	"ionixx/models"
-	"ionixx/storage"
-	"ionixx/utils"
+	"ionixx/api/constants"
+	"ionixx/api/models"
+	"ionixx/api/response"
+	"ionixx/api/storage"
 	"net/http"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthController struct{}
@@ -42,7 +41,7 @@ type LoginRequest struct {
 func (a *AuthController) Login(c *gin.Context) {
 	var loginRequest LoginRequest
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, err.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -50,26 +49,26 @@ func (a *AuthController) Login(c *gin.Context) {
 
 	result := storage.DB.Where("user_name = ?", loginRequest.UserName).First(&user)
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, "Invalid username or password")
+		response.ErrorJSON(c, http.StatusBadRequest, "Invalid username or password")
 		return
 	}
 
 	token, err := generateToken(user)
 	if err != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, err.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	result = storage.DB.Model(&user).Update("auth_token", token)
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
 
-	utils.SuccessJSON(c, http.StatusOK, "Login successful!", user)
+	response.SuccessJSON(c, http.StatusOK, "Login successful!", user)
 }

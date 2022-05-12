@@ -1,10 +1,10 @@
 package middlewares
 
 import (
-	"ionixx/constants"
-	"ionixx/models"
-	"ionixx/storage"
-	"ionixx/utils"
+	"ionixx/api/constants"
+	"ionixx/api/models"
+	"ionixx/api/response"
+	"ionixx/api/storage"
 	"net/http"
 	"strings"
 
@@ -16,7 +16,7 @@ func AuthMiddleware(c *gin.Context) {
 	idTokenHeader := strings.Split(c.GetHeader("Authorization"), "Bearer ")
 
 	if len(idTokenHeader) < 2 {
-		utils.ErrorJSON(c, http.StatusUnauthorized, "Must provide Authorization header with format `Bearer {token}`")
+		response.ErrorJSON(c, http.StatusUnauthorized, "Must provide Authorization header with format `Bearer {token}`")
 		return
 	}
 	tokenString := idTokenHeader[1]
@@ -28,13 +28,13 @@ func AuthMiddleware(c *gin.Context) {
 		var user models.User
 		storage.DB.Model(&models.User{}).Where("auth_token = ? and id = ?", tokenString, claims.UserID).First(&user)
 		if user.ID == 0 {
-			utils.ErrorJSON(c, http.StatusUnauthorized, "Unauthorized: Invalid token")
+			response.ErrorJSON(c, http.StatusUnauthorized, "Unauthorized: Invalid token")
 			return
 		}
 		c.Set("userId", user.ID)
 		c.Next()
 	} else {
-		utils.ErrorJSON(c, http.StatusUnauthorized, "Unauthorized: Invalid token")
+		response.ErrorJSON(c, http.StatusUnauthorized, "Unauthorized: Invalid token")
 		return
 	}
 }

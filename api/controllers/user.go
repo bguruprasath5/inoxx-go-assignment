@@ -2,16 +2,17 @@ package controllers
 
 import (
 	"fmt"
-	"ionixx/models"
-	"ionixx/storage"
+	"ionixx/api/models"
+	"ionixx/api/storage"
 	"net/http"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"ionixx/utils"
+	"ionixx/api/response"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -22,11 +23,11 @@ func (u *UserController) GetAllUsers(c *gin.Context) {
 	result := storage.DB.Find(&list)
 
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
 
-	utils.SuccessJSON(c, http.StatusOK, "Users fetched successfully!", list)
+	response.SuccessJSON(c, http.StatusOK, "Users fetched successfully!", list)
 }
 
 func (u *UserController) GetUserByID(c *gin.Context) {
@@ -35,11 +36,11 @@ func (u *UserController) GetUserByID(c *gin.Context) {
 	result := storage.DB.Where("id = ?", c.Param("id")).First(&user)
 
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
 
-	utils.SuccessJSON(c, http.StatusOK, "User fetched successfully!", user)
+	response.SuccessJSON(c, http.StatusOK, "User fetched successfully!", user)
 }
 
 type CreateUserRequest struct {
@@ -69,7 +70,7 @@ func (u *UserController) CreateUser(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&userData); err != nil {
 		for _, fieldErr := range err.(validator.ValidationErrors) {
-			utils.ErrorJSON(c, http.StatusBadRequest, fmt.Sprintf("Validation Error : %s %s", fieldErr.Field(), fieldErr.Tag()))
+			response.ErrorJSON(c, http.StatusBadRequest, fmt.Sprintf("Validation Error : %s %s", fieldErr.Field(), fieldErr.Tag()))
 			return
 		}
 		return
@@ -78,17 +79,17 @@ func (u *UserController) CreateUser(c *gin.Context) {
 	user, userErr := userData.toUser()
 
 	if userErr != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, userErr.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, userErr.Error())
 		return
 	}
 	result := storage.DB.Create(user)
 
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
 
-	utils.SuccessJSON(c, http.StatusOK, "User created successfully!", nil)
+	response.SuccessJSON(c, http.StatusOK, "User created successfully!", nil)
 
 }
 
@@ -102,13 +103,13 @@ func (u *UserController) UpdateUserById(c *gin.Context) {
 	var userData UpdateUserRequest
 
 	if err := c.BindJSON(&userData); err != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, err.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	user := models.User{}
 	result := storage.DB.Where("id = ?", c.Param("id")).First(&user)
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
 
@@ -123,23 +124,23 @@ func (u *UserController) UpdateUserById(c *gin.Context) {
 	}
 	result = storage.DB.Save(&user)
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
-	utils.SuccessJSON(c, http.StatusOK, "User updated successfully!", nil)
+	response.SuccessJSON(c, http.StatusOK, "User updated successfully!", nil)
 }
 
 func (u *UserController) DeleteUserById(c *gin.Context) {
 	user := models.User{}
 	result := storage.DB.Where("id = ?", c.Param("id")).First(&user)
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
 	result = storage.DB.Delete(&user)
 	if result.Error != nil {
-		utils.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
+		response.ErrorJSON(c, http.StatusBadRequest, result.Error.Error())
 		return
 	}
-	utils.SuccessJSON(c, http.StatusOK, "User deleted successfully!", nil)
+	response.SuccessJSON(c, http.StatusOK, "User deleted successfully!", nil)
 }

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"ionixx/storage"
+	"ionixx/api/storage"
 
-	"ionixx/controllers"
-	"ionixx/middlewares"
+	"ionixx/api/controllers"
+	"ionixx/api/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,7 +28,7 @@ func setupAuthRouter(r *gin.Engine) {
 	userRouter.POST("/login", authController.Login)
 }
 
-func main() {
+func SetupServer() *gin.Engine {
 	storage.InitDB()
 
 	r := gin.Default()
@@ -42,5 +42,9 @@ func main() {
 	setupUserRouter(r)
 	setupAuthRouter(r)
 
-	r.Run(":3000")
+	return r
+}
+
+func main() {
+	SetupServer().Run(":3000")
 }
