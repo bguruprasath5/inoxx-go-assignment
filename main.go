@@ -14,11 +14,17 @@ import (
  * Function to setup the user router
  */
 func setupUserRouter(r *gin.Engine) {
+	// create the user controller
 	userController := &controllers.UserController{}
+
+	// create the user router group
 	userRouter := r.Group("/user")
+
+	// user routes
 	userRouter.GET("/", userController.GetAllUsers)
 	userRouter.POST("/", userController.CreateUser)
 
+	//use auth middleware for all user routes below
 	userRouter.Use(middlewares.AuthMiddleware)
 	{
 		userRouter.GET("/:id", userController.GetUserByID)
@@ -31,9 +37,12 @@ func setupUserRouter(r *gin.Engine) {
  * Function to setup the auth router
  */
 func setupAuthRouter(r *gin.Engine) {
+	// create the auth controller
 	authController := &controllers.AuthController{}
-	userRouter := r.Group("/auth")
-	userRouter.POST("/login", authController.Login)
+	// create the auth router group
+	authRouter := r.Group("/auth")
+	// auth routes
+	authRouter.POST("/login", authController.Login)
 }
 
 /**
@@ -43,6 +52,7 @@ func loadEnv() {
 	// load .env file
 	err := godotenv.Load(".env")
 
+	// if there is an error, panic and exit
 	if err != nil {
 		panic("Error loading .env file")
 	}
@@ -61,11 +71,6 @@ func SetupServer() *gin.Engine {
 	// initialize the server
 	r := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
 	// setup user router
 	setupUserRouter(r)
 	// setup auth router

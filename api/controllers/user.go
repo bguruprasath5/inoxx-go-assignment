@@ -109,7 +109,11 @@ type CreateUserRequest struct {
 	LinkedinURL string    `json:"linkedin_url" binding:"required"`
 }
 
+/**
+ * Function to convert a CreateUserRequest to a User
+ */
 func (c *CreateUserRequest) toUser() (*models.User, error) {
+	// Generate hashed password
 	hashedPasswordBytes, err := bcrypt.GenerateFromPassword([]byte(c.Password), 14)
 	if err != nil {
 		return nil, err
