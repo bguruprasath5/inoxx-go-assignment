@@ -4,6 +4,7 @@ import (
 	"ionixx/api/controllers"
 	"ionixx/api/middlewares"
 	"ionixx/api/storage"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -76,5 +77,5 @@ func SetupServer() *gin.Engine {
 
 func main() {
 	// initialize the server and start it
-	SetupServer().Run(":3000")
+	SetupServer().Run(":" + os.Getenv("PORT"))
 }
