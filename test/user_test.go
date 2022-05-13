@@ -9,6 +9,10 @@ import (
 	"testing"
 )
 
+/**
+ * Function to test the create user
+ * case: success
+ */
 func TestCreateUserSuccess(t *testing.T) {
 	r := SetupTestServer()
 	userController := controllers.UserController{}
@@ -38,6 +42,10 @@ func TestCreateUserSuccess(t *testing.T) {
 	}
 }
 
+/**
+ * Function to test the create user
+ * case: failed
+ */
 func TestCreateUserFailed(t *testing.T) {
 
 	r := SetupTestServer()
@@ -70,6 +78,10 @@ func TestCreateUserFailed(t *testing.T) {
 	}
 }
 
+/**
+ * Function to test the get all users
+ * case: success
+ */
 func TestGetAllUsers(t *testing.T) {
 	r := SetupTestServer()
 	userController := controllers.UserController{}
@@ -95,6 +107,10 @@ func TestGetAllUsers(t *testing.T) {
 	}
 }
 
+/**
+ * Function to test get user by id endpoint
+ * case: sucess
+ */
 func TestGetUserByIDSuccess(t *testing.T) {
 
 	r := SetupTestServer()
@@ -122,6 +138,10 @@ func TestGetUserByIDSuccess(t *testing.T) {
 	}
 }
 
+/**
+ * Function to test get user by id endpoint
+ * case: fail
+ */
 func TestGetUserByIDFailed(t *testing.T) {
 
 	r := SetupTestServer()

@@ -13,11 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/**
+ * Function setup the test server
+ */
 func SetupTestServer() *gin.Engine {
 	// Switch to test mode
 	gin.SetMode(gin.TestMode)
 
-	storage.InitDB()
+	storage.InitTestDB()
 	// Setup router, just like main function
 	r := gin.Default()
 	return r
@@ -44,6 +47,9 @@ func GetInvalidUserPayload() ([]byte, error) {
 	return json.Marshal(newUser)
 }
 
+/**
+ * Function to seed a new user
+ */
 func SeedNewUser(r *gin.Engine, t *testing.T) {
 	userController := controllers.UserController{}
 	r.POST("/", userController.CreateUser)

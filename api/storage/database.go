@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"ionixx/api/models"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -10,10 +11,14 @@ import (
 
 var DB *gorm.DB
 
+/**
+ * Function to initialize the database
+ */
 func InitDB() {
 	var err error
-	dsn := "host=localhost user=guruprasath password= dbname=ionixx port=5432 sslmode=disable TimeZone=Asia/Kolkata"
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// Open database connection using the DSN
+	DB, err = gorm.Open(postgres.Open(os.Getenv("DSN")), &gorm.Config{})
+	// If there is an error opening the database, panic and exit
 	if err != nil {
 		panic(err)
 	}
@@ -21,14 +26,18 @@ func InitDB() {
 	DB.AutoMigrate(&models.User{})
 }
 
+/**
+ * Function to initialize the test database
+ */
 func InitTestDB() {
 	var err error
-	dsn := "host=localhost user=guruprasath password= dbname=ionixx port=5432 sslmode=disable TimeZone=Asia/Kolkata"
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// Open database connection using the DSN
+	DB, err = gorm.Open(postgres.Open(os.Getenv("DSN")), &gorm.Config{})
+	// If there is an error opening the database, panic and exit
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("DB connected successfully!")
-	DB.Migrator().CreateTable(&models.User{})
+	DB.Migrator().DropTable(&models.User{})
 	DB.AutoMigrate(&models.User{})
 }
